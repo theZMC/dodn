@@ -1,0 +1,19 @@
+name: Build API Container
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    uses: ./.github/workflows/build.yaml
+    with:
+      image_name: api
+      context: api
+      target: dodn-api
