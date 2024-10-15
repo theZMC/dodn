@@ -1,0 +1,37 @@
+services:
+  mongodb:
+    container_name: mongodb
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: dodn
+      MONGO_INITDB_ROOT_PASSWORD: changeme
+      MONGO_INITDB_DATABASE: dodn
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo -u dodn -p changeme --authenticationDatabase dodn --quiet
+  dodn-api:
+    container_name: dodn-api
+    ports:
+      - 127.0.0.1:8080:8080
+    environment:
+      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: dodn
+      SPRING_DATA_MONGODB_USERNAME: dodn
+      SPRING_DATA_MONGODB_PASSWORD: changeme
+      SPRING_DATA_MONGODB_AUTHENTICATIONDATABASE: admin
+    build:
+      context: api
+      target: dodn-api
+    depends_on:
+      - mongodb
+  dodn-web:
+    container_name: dodn-web
+    ports:
+      - 127.0.0.1:3000:80
+    environment:
+      API_HOST: http://dodn-api:8080/
+    build:
+      context: web
+      target: dodn-web
+    depends_on:
+      - dodn-api
