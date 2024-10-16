@@ -1,11 +1,31 @@
 <script lang="ts">
   import { TodoList } from "@/components/todo-list";
   import { taskFromJSON, type Task } from "@/types/task";
+  import { toast } from "svelte-sonner";
   import { onMount } from "svelte";
+  import { ExclamationTriangle } from "svelte-radix";
   let tasks: Task[] = [];
 
+  const fail = (msg: string) => {
+    toast(msg, {
+      duration: 5000,
+      icon: ExclamationTriangle,
+    });
+  };
+
   onMount(async () => {
-    let resp = await fetch("/api/tasks");
+    let resp: Awaited<ReturnType<typeof fetch>>;
+    try {
+      resp = await fetch("/api/tasks");
+    } catch (error) {
+      fail("Failed to fetch tasks!");
+      console.error(error);
+      return;
+    }
+    if (!resp.ok) {
+      fail("Failed to fetch tasks!");
+      return;
+    }
     tasks = ((await resp.json()) as []).map((taskJSON) =>
       taskFromJSON(taskJSON),
     );
@@ -14,13 +34,29 @@
   const onEdit = async (task: Task) => {
     task.isSaving = true;
     let id = task.id;
-    let resp = await fetch(`/api/tasks/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(task),
-    });
+
+    let resp: Awaited<ReturnType<typeof fetch>>;
+
+    try {
+      resp = await fetch(`/api/tasks/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(task),
+      });
+    } catch (error) {
+      fail("Failed to fetch tasks!");
+      console.error(error);
+      task.isSaving = false;
+      return;
+    }
+
+    if (!resp.ok) {
+      fail(`[${resp.status}] Failed to fetch tasks!`);
+      task.isSaving = false;
+      return;
+    }
 
     let updatedTask = taskFromJSON(await resp.json());
 
@@ -37,13 +73,28 @@
 
     tasks = [...tasks, task];
 
-    let resp = await fetch("/api/tasks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(task),
-    });
+    let resp: Awaited<ReturnType<typeof fetch>>;
+
+    try {
+      resp = await fetch("/api/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(task),
+      });
+    } catch (error) {
+      fail("Failed to create task!");
+      console.error(error);
+      tasks = tasks.filter((t) => t.id !== id);
+      return;
+    }
+
+    if (!resp.ok) {
+      fail(`[${resp.status}] Failed to create task!`);
+      tasks = tasks.filter((t) => t.id !== id);
+      return;
+    }
 
     let newTask = taskFromJSON(await resp.json());
     tasks = tasks.map((t) =>
@@ -56,13 +107,27 @@
     task.isCompleted = true;
     let id = task.id;
 
-    let resp = await fetch(`/api/tasks/${task.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(task),
-    });
+    let resp: Awaited<ReturnType<typeof fetch>>;
+    try {
+      resp = await fetch(`/api/tasks/${task.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(task),
+      });
+    } catch (error) {
+      fail("Failed to complete task!");
+      console.error(error);
+      task.isSaving = false;
+      return;
+    }
+
+    if (!resp.ok) {
+      fail(`[${resp.status}] Failed to complete task!`);
+      task.isSaving = false;
+      return;
+    }
 
     let completedTask = taskFromJSON(await resp.json());
 
@@ -74,6 +139,22 @@
   const onDelete = async (task: Task) => {
     task.isSaving = true;
     let id = task.id;
+    let resp: Awaited<ReturnType<typeof fetch>>;
+    try {
+      resp = await fetch(`/api/tasks/${id}`, {
+        method: "DELETE",
+      });
+    } catch (error) {
+      fail("Failed to delete task!");
+      console.error(error);
+      return;
+    }
+
+    if (!resp.ok) {
+      fail(`[${resp.status}] Failed to delete task!`);
+      return;
+    }
+
     tasks = tasks.filter((t) => t.id !== id);
   };
 </script>

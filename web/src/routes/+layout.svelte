@@ -1,7 +1,9 @@
 <script>
+  import { Toaster } from "@/components/ui/sonner";
   import "../app.css";
 </script>
 
+<Toaster class="absolute top-4 right-4" />
 <slot></slot>
 
 <style lang="postcss">

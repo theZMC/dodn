@@ -95,7 +95,7 @@
 <style lang="postcss">
   h3.initial,
   h3.emptied {
-    @apply text-gray-400 italic;
+    @apply text-gray-400 italic font-thin;
   }
   h3.initial::after {
     content: "create a task";
@@ -104,7 +104,7 @@
     content: "can't be empty";
   }
   h3 {
-    @apply p-1;
+    @apply p-1 text-lg;
   }
   h3[contenteditable] {
     @apply transition-colors;
