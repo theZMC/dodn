@@ -41,10 +41,24 @@ values for alternative setups if necessary.
    cert-manager-webhook      1/1     1            1           3h21m
    ```
 
-3. Install the demo application:
+3. Install the otel operator:
 
    ```bash
-   kubectl apply -f https://raw.githubusercontent.com/theZMC/dodn/refs/heads/main/k8s/manifests.yml
+   kubectl apply -f https://github.com/open-telemetry/opentelemetry-operator/releases/latest/download/opentelemetry-operator.yaml
    ```
 
-4. Navigate to your observability frontend (for bigbang with developer ingress certs, this is `grafana.dev.bigbang.mil`)
+4. Wait for the otel operator to be ready:
+
+   ```bash
+   ❯ kubectl get deployments -n opentelemetry-operator-system
+   NAME                                        READY   UP-TO-DATE   AVAILABLE   AGE
+   opentelemetry-operator-controller-manager   1/1     1            1           5h21m
+   ```
+
+5. Install the demo application:
+
+   ```bash
+   kubectl apply -f https://raw.githubusercontent.com/theZMC/dodn/refs/heads/main/k8s/manifests.yml -n dodn
+   ```
+
+6. Navigate to your observability frontend (for bigbang with developer ingress certs, this is https://grafana.dev.bigbang.mil)
