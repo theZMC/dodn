@@ -2,6 +2,8 @@ name: Build API Container
 
 on:
   push:
+    paths:
+      - api/**
     branches:
       - main
 

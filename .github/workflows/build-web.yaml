@@ -2,6 +2,8 @@ name: Build Web Container
 
 on:
   push:
+    paths:
+      - web/**
     branches:
       - main
 
