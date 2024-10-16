@@ -14,7 +14,7 @@ class TaskService {
   private void chaosEwok() {
     Double random = Math.random();
 
-    if (random < 0.1) { // 10% chance of chaos
+    if (random < 0.25) { // 25% chance of chaos
       String message = new StringBuilder().append("\n")
           .append("                                           ⣿⣿⣿⣿⡇\n")
           .append("                                           ⣿⣿⣿⣿⠃\n")
@@ -54,7 +54,7 @@ class TaskService {
     }
     try {
       if (random > 0.5) { // 50% chance of delay
-        Thread.sleep((long) (random * 1000));
+        Thread.sleep((long) (random * 5000)); // 2.5 up to 5 seconds
       }
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
